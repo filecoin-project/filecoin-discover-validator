@@ -163,8 +163,9 @@ func main() {
 			return nil
 		},
 	); err != nil {
-		fatalf("Error encounterd while collecting list of available car files: %s", err)
+		fatalf("Error encountered while collecting list of available car files: %s", err)
 	}
+
 	bar.Finish()
 
 	log.Printf("Found total of %d car files", len(dc.Carfiles))
@@ -431,8 +432,12 @@ func (dc *DumboChecker) resolveMountpoint() {
 		fatalf("The supplied mountpoint '%s' is not a directory", abs)
 	}
 
-	drives, err := filepath.Glob("/dev/disk/by-id/*ST8000*-part1")
-	if err != nil {
+	// glb := "/dev/disk/by-id/*ST8000*-part1"
+	glb := "/dev/disk/by-id/*-part1"
+	drives, err := filepath.Glob(glb)
+	if err != nil ||
+		len(drives) == 0 ||
+		(len(drives) == 1 && drives[0] == glb) {
 		fatalf("No filecoin discover drives seem to be attached to this machine: %s", err)
 	}
 
@@ -457,7 +462,7 @@ func (dc *DumboChecker) resolveMountpoint() {
 		}
 	}
 
-	fatalf("Mountpoint '%s' does not correspond to the root of a mounted Filecoin Discover drive", abs)
+	fatalf("Mountpoint '%s' does not correspond to a mounted drive on this system...", abs)
 }
 
 func NewFromArgs(argv []string) (dc *DumboChecker) {
