@@ -8,7 +8,7 @@ require (
 	github.com/cheggaaa/pb/v3 v3.0.5
 	github.com/ipfs/go-cid v0.0.7
 	github.com/ipfs/go-qringbuf v0.0.0-20200519114740-ddee1a6d5e5d
-	github.com/ipld/go-car v0.1.0
+	github.com/ipld/go-car v0.1.1-0.20201109180015-d83de81be219
 	github.com/klauspost/cpuid v1.3.1
 	github.com/mattn/go-isatty v0.0.12
 	github.com/minio/sha256-simd v0.1.1
