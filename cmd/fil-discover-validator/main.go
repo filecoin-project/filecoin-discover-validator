@@ -432,6 +432,7 @@ func (dc *DumboChecker) validateCarStructure(cidString string) (ok bool) {
 }
 
 var sernoExtractor = regexp.MustCompile(`\A/dev/disk/by-id/(.+)-part1\z`)
+var stExtractor = regexp.MustCompile(`\A/dev/disk/by-id/(.+ST8000.+)-part1\z`)
 
 func (dc *DumboChecker) resolveMountpoint() {
 	abs, err := filepath.Abs(dc.cfg.Mount)
@@ -450,7 +451,6 @@ func (dc *DumboChecker) resolveMountpoint() {
 		fatalf("The supplied mountpoint '%s' is not a directory", abs)
 	}
 
-	// glb := "/dev/disk/by-id/*ST8000*-part1"
 	glb := "/dev/disk/by-id/*-part1"
 	drives, err := filepath.Glob(glb)
 	if err != nil ||
@@ -468,6 +468,20 @@ func (dc *DumboChecker) resolveMountpoint() {
 		fatalf("Mountpoint '%s' does not correspond to the root of a mounted Filecoin Discover drive", abs)
 	}
 
+	// Try to find the ST8000 name
+	for _, d := range drives {
+		statDev := new(unix.Stat_t)
+		unix.Stat(d, statDev)
+		if statDev.Rdev == lstat.Dev {
+			serno := stExtractor.FindStringSubmatch(d)
+			if len(serno) > 0 {
+				dc.DriveIdentifier = serno[1]
+				return
+			}
+		}
+	}
+
+	// Just find whatever
 	for _, d := range drives {
 		statDev := new(unix.Stat_t)
 		unix.Stat(d, statDev)
