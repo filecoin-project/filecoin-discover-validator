@@ -198,6 +198,13 @@ func main() {
 			var key string
 			var isOpen bool
 
+			// We manage to panic some of our tooling - catch things here
+			defer func() {
+				if r := recover(); r != nil {
+					fatalf("unexpected panic() while processing '%s': %s", key, r)
+				}
+			}()
+
 			select {
 			case key, isOpen = <-commpQueue:
 			default:
@@ -218,8 +225,19 @@ func main() {
 	for wCount > 0 {
 		wCount--
 		go func() {
+
+			var key string
+			var isOpen bool
+
+			// We manage to panic some of our tooling - catch things here
+			defer func() {
+				if r := recover(); r != nil {
+					fatalf("unexpected panic() while processing '%s': %s", key, r)
+				}
+			}()
+
 			for {
-				key, isOpen := <-spotCheckQueue
+				key, isOpen = <-spotCheckQueue
 				if !isOpen {
 					return
 				}
